@@ -18,6 +18,9 @@ namespace Task4.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string? q = null, string? status = "all", int page = 1, int pageSize = 10)
         {
+            var currentUser = await _db.Users.FirstAsync(u => u.Id == HttpContext.Session.GetInt32("UserId"));
+            ViewBag.ShowVerifyEmail = !currentUser.IsEmailVerified;
+
             q = (q ?? "").Trim().ToLower();
             status = (status ?? "all").Trim().ToLower();
 

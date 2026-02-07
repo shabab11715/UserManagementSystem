@@ -1,3 +1,6 @@
 ﻿@using Task4App
 @using Task4App.Models
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewBag.ShowVerifyEmail = Context.Items["ShowVerifyEmail"] as bool? ?? false;
+}

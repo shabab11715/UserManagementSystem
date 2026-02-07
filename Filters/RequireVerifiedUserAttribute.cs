@@ -40,12 +40,7 @@ namespace Task4.Filters
                 return;
             }
 
-            if (!user.IsEmailVerified)
-            {
-                http.Session.Remove("UserId");
-                context.Result = new RedirectToActionResult("Login", "Auth", new { reason = "unverified" });
-                return;
-            }
+            context.HttpContext.Items["ShowVerifyEmail"] = !user.IsEmailVerified;
 
             base.OnActionExecuting(context);
         }

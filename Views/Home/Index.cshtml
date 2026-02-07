@@ -37,7 +37,7 @@
                         <i class="bi bi-lock"></i>
                     </button>
                 </span>
-
+                
                 <span id="wrapUnblock" data-bs-toggle="tooltip" data-bs-title="Select at least one user">
                     <button id="btnUnblock" type="button" class="btn btn-outline-success btn-icon" disabled onclick="openConfirm('unblock')">
                         <i class="bi bi-unlock"></i>
@@ -101,6 +101,7 @@
                         <th style="width: 44px;">
                             <input type="checkbox" id="selectAll" />
                         </th>
+                        <th>Name</th>
                         <th>Email</th>
                         <th>Status</th>
                         <th>Created</th>
@@ -114,6 +115,7 @@
                         <td>
                             <input type="checkbox" class="row-check" name="selectedIds" value="@u.Id" />
                         </td>
+                        <td>@u.Name</td>
                         <td>@u.Email</td>
                         <td>
                             @if (u.IsBlocked)
@@ -265,24 +267,18 @@
     function openConfirm(action) {
         pendingAction = action;
 
-        if (action === "block") {
-            confirmMessage.textContent = "Block the selected user(s)?";
-            confirmBtn.className = "btn btn-warning";
-        } else if (action === "unblock") {
-            confirmMessage.textContent = "Unblock the selected user(s)?";
-            confirmBtn.className = "btn btn-success";
-        } else if (action === "delete") {
-            confirmMessage.textContent = "Delete the selected user(s)? This cannot be undone.";
-            confirmBtn.className = "btn btn-danger";
-        } else if (action === "deleteUnverified") {
-            confirmMessage.textContent = "Delete all unverified users? This cannot be undone.";
-            confirmBtn.className = "btn btn-danger";
-        }
+        if (action === "block") confirmMessage.innerText = "Block selected user(s)?";
+        if (action === "unblock") confirmMessage.innerText = "Unblock selected user(s)?";
+        if (action === "delete") confirmMessage.innerText = "Delete selected user(s)?";
+        if (action === "deleteUnverified") confirmMessage.innerText = "Delete all unverified users?";
 
+        confirmBtn.className = "btn " + (action === "unblock" ? "btn-success" : "btn-danger");
         modal.show();
     }
 
     confirmBtn.addEventListener("click", function () {
+        if (!pendingAction) return;
+
         if (pendingAction === "block") form.action = "/Home/BlockSelected";
         if (pendingAction === "unblock") form.action = "/Home/UnblockSelected";
         if (pendingAction === "delete") form.action = "/Home/DeleteSelected";
@@ -291,6 +287,13 @@
         form.submit();
     });
 
-    updateToolbar();
+    document.addEventListener("DOMContentLoaded", function () {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        updateToolbar();
+    });
 </script>
 }

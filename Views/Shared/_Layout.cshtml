@@ -37,11 +37,24 @@
                     }
                     else
                     {
+                        @if (ViewBag.ShowVerifyEmail == true)
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-warning btn-sm px-3"
+                                asp-controller="Auth"
+                                asp-action="ResendVerification">
+                                    <i class="bi bi-envelope-exclamation"></i>
+                                    Verify email
+                                </a>
+                            </li>
+                        }
+
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Home" asp-action="Index">Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-light btn-sm px-3" asp-controller="Auth" asp-action="Logout">Logout</a>
+                            <a class="btn btn-outline-light btn-sm px-3"
+                            asp-controller="Auth"
+                            asp-action="Logout">
+                                Logout
+                            </a>
                         </li>
                     }
                 </ul>

@@ -163,6 +163,12 @@ namespace Task4.Controllers
                 return View();
             }
 
+            if (user.IsBlocked)
+            {
+                HttpContext.Session.Remove("UserId");
+                return RedirectToAction("Login", new { reason = "blocked" });
+            }
+
             user.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
@@ -170,6 +176,7 @@ namespace Task4.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
 
         // GET: /Auth/Logout
         [HttpGet]
