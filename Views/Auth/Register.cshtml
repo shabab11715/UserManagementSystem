@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container-fluid p-0">
+    <div class="row g-0 min-vh-100">
+        <div class="col-12 col-lg-6 d-flex align-items-center justify-content-center p-4">
+            <div class="surface-card w-100" style="max-width: 520px; padding: 40px;">
+                <div class="mb-4">
+                    <div class="text-uppercase text-muted small">Create your account</div>
+                    <h2 class="fw-bold mb-0">Sign Up</h2>
+                </div>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger py-2">@ViewBag.Error</div>
+                }
+
+                @if (ViewBag.Info != null)
+                {
+                    <div class="alert alert-success py-2">@ViewBag.Info</div>
+                }
+
+                <form method="post" action="/Auth/Register">
+                    <div class="mb-3">
+                        <label class="form-label">E-mail</label>
+                        <div class="input-group">
+                            <input type="email" name="email" class="form-control" placeholder="test@example.com" required />
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="passwordInput" class="form-control" placeholder="••••••••" required />
+                            <button type="button" class="input-group-text bg-white" id="togglePassword">
+                                <i class="bi bi-eye" id="passwordIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 py-2" type="submit">
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <div class="text-muted">
+                        Already have an account?
+                        <a class="link-primary" href="/Auth/Login">Sign in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6 d-none d-lg-block login-wallpaper"></div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const passwordInput = document.getElementById("passwordInput");
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordIcon = document.getElementById("passwordIcon");
+
+    togglePassword.addEventListener("click", function () {
+        const isHidden = passwordInput.type === "password";
+        passwordInput.type = isHidden ? "text" : "password";
+        passwordIcon.className = isHidden ? "bi bi-eye-slash" : "bi bi-eye";
+    });
+</script>
+}

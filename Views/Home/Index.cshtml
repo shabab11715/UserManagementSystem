@@ -1,0 +1,296 @@
+﻿@model List<Task4.Models.User>
+
+@{
+    ViewData["Title"] = "User Management";
+    string q = ViewBag.Query ?? "";
+    string status = ViewBag.Status ?? "all";
+    int currentPage = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int totalPages = ViewBag.TotalPages ?? 1;
+
+    string RowStatus(bool isBlocked, bool isVerified)
+    {
+        if (isBlocked) return "Blocked";
+        if (!isVerified) return "Unverified";
+        return "Active";
+    }
+
+    string Link(int targetPage)
+    {
+        return Url.Action("Index", "Home", new { q = q, status = status, pageSize = pageSize, page = targetPage }) ?? "#";
+    }
+}
+
+<div class="d-flex justify-content-center">
+    <div class="surface-card w-100" style="max-width: 1100px; padding: 28px;">
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h4 class="fw-semibold mb-1">User Management</h4>
+                <div class="text-muted small">@totalCount user(s)</div>
+            </div>
+
+            <div class="toolbar-card px-3 py-2 d-flex gap-2">
+                <span id="wrapBlock" data-bs-toggle="tooltip" data-bs-title="Select at least one user">
+                    <button id="btnBlock" type="button" class="btn btn-outline-warning btn-icon" disabled onclick="openConfirm('block')">
+                        <i class="bi bi-lock"></i>
+                    </button>
+                </span>
+
+                <span id="wrapUnblock" data-bs-toggle="tooltip" data-bs-title="Select at least one user">
+                    <button id="btnUnblock" type="button" class="btn btn-outline-success btn-icon" disabled onclick="openConfirm('unblock')">
+                        <i class="bi bi-unlock"></i>
+                    </button>
+                </span>
+
+                <span id="wrapDelete" data-bs-toggle="tooltip" data-bs-title="Select at least one user">
+                    <button id="btnDelete" type="button" class="btn btn-outline-danger btn-icon" disabled onclick="openConfirm('delete')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </span>
+
+                <span data-bs-toggle="tooltip" data-bs-title="Delete all unverified users">
+                    <button type="button" class="btn btn-outline-secondary btn-icon" onclick="openConfirm('deleteUnverified')">
+                        <i class="bi bi-person-x"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+
+        <form method="get" class="surface-card p-3 mb-3" style="box-shadow:none;">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-6">
+                    <input class="form-control" name="q" value="@q" placeholder="Search by email" />
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <select class="form-select" name="status">
+                        <option value="all" selected="@(status=="all")">All</option>
+                        <option value="active" selected="@(status=="active")">Active</option>
+                        <option value="blocked" selected="@(status=="blocked")">Blocked</option>
+                        <option value="unverified" selected="@(status=="unverified")">Unverified</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <select class="form-select" name="pageSize">
+                        <option value="10" selected="@(pageSize==10)">10</option>
+                        <option value="20" selected="@(pageSize==20)">20</option>
+                        <option value="50" selected="@(pageSize==50)">50</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-1 d-grid">
+                    <button class="btn btn-primary">Filter</button>
+                </div>
+
+                <input type="hidden" name="page" value="1" />
+            </div>
+        </form>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success py-2 mb-3">@TempData["Success"]</div>
+        }
+
+        <form id="usersForm" method="post">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 44px;">
+                            <input type="checkbox" id="selectAll" />
+                        </th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr data-status="@RowStatus(u.IsBlocked, u.IsEmailVerified)">
+                        <td>
+                            <input type="checkbox" class="row-check" name="selectedIds" value="@u.Id" />
+                        </td>
+                        <td>@u.Email</td>
+                        <td>
+                            @if (u.IsBlocked)
+                            {
+                                <span class="badge bg-danger">Blocked</span>
+                            }
+                            else if (!u.IsEmailVerified)
+                            {
+                                <span class="badge bg-warning text-dark">Unverified</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </td>
+                        <td>@u.CreatedAt.ToString("yyyy-MM-dd")</td>
+                        <td>@(u.LastLoginAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </form>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted small">Page @currentPage of @totalPages</div>
+
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Link(currentPage - 1)">Prev</a>
+                    </li>
+
+                    @{
+                        int start = Math.Max(1, currentPage - 2);
+                        int end = Math.Min(totalPages, currentPage + 2);
+                        for (int p = start; p <= end; p++)
+                        {
+                            <li class="page-item @(p == currentPage ? "active" : "")">
+                                <a class="page-link" href="@Link(p)">@p</a>
+                            </li>
+                        }
+                    }
+
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@Link(currentPage + 1)">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmMessage"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const form = document.getElementById("usersForm");
+
+    const selectAll = document.getElementById("selectAll");
+    const rowChecks = document.querySelectorAll(".row-check");
+
+    const btnBlock = document.getElementById("btnBlock");
+    const btnUnblock = document.getElementById("btnUnblock");
+    const btnDelete = document.getElementById("btnDelete");
+
+    const modal = new bootstrap.Modal(document.getElementById("confirmModal"));
+    const confirmMessage = document.getElementById("confirmMessage");
+    const confirmBtn = document.getElementById("confirmBtn");
+
+    let pendingAction = "";
+
+    function selectedStatuses() {
+        const selectedRows = Array.from(rowChecks)
+            .filter(c => c.checked)
+            .map(c => c.closest("tr"))
+            .filter(r => r);
+
+        return selectedRows.map(r => r.getAttribute("data-status"));
+    }
+
+    function setTip(elId, text) {
+        const el = document.getElementById(elId);
+        el.setAttribute("data-bs-title", text);
+
+        const existing = bootstrap.Tooltip.getInstance(el);
+        if (existing) existing.dispose();
+
+        new bootstrap.Tooltip(el);
+    }
+
+    function updateToolbar() {
+        const statuses = selectedStatuses();
+        const anyChecked = statuses.length > 0;
+
+        btnDelete.disabled = !anyChecked;
+
+        if (!anyChecked) {
+            btnBlock.disabled = true;
+            btnUnblock.disabled = true;
+
+            setTip("wrapBlock", "Select at least one user");
+            setTip("wrapUnblock", "Select at least one user");
+            setTip("wrapDelete", "Select at least one user");
+            return;
+        }
+
+        const hasBlocked = statuses.includes("Blocked");
+        const hasNotBlocked = statuses.some(s => s === "Active" || s === "Unverified");
+
+        btnUnblock.disabled = !hasBlocked;
+        btnBlock.disabled = !hasNotBlocked;
+
+        setTip("wrapDelete", "Delete selected users");
+
+        if (btnBlock.disabled) setTip("wrapBlock", "Select at least one unblocked user");
+        else setTip("wrapBlock", "Block selected users");
+
+        if (btnUnblock.disabled) setTip("wrapUnblock", "Select at least one blocked user");
+        else setTip("wrapUnblock", "Unblock selected users");
+    }
+
+    selectAll.addEventListener("change", function () {
+        rowChecks.forEach(c => c.checked = selectAll.checked);
+        updateToolbar();
+    });
+
+    rowChecks.forEach(c => {
+        c.addEventListener("change", function () {
+            selectAll.checked = Array.from(rowChecks).every(x => x.checked);
+            updateToolbar();
+        });
+    });
+
+    function openConfirm(action) {
+        pendingAction = action;
+
+        if (action === "block") {
+            confirmMessage.textContent = "Block the selected user(s)?";
+            confirmBtn.className = "btn btn-warning";
+        } else if (action === "unblock") {
+            confirmMessage.textContent = "Unblock the selected user(s)?";
+            confirmBtn.className = "btn btn-success";
+        } else if (action === "delete") {
+            confirmMessage.textContent = "Delete the selected user(s)? This cannot be undone.";
+            confirmBtn.className = "btn btn-danger";
+        } else if (action === "deleteUnverified") {
+            confirmMessage.textContent = "Delete all unverified users? This cannot be undone.";
+            confirmBtn.className = "btn btn-danger";
+        }
+
+        modal.show();
+    }
+
+    confirmBtn.addEventListener("click", function () {
+        if (pendingAction === "block") form.action = "/Home/BlockSelected";
+        if (pendingAction === "unblock") form.action = "/Home/UnblockSelected";
+        if (pendingAction === "delete") form.action = "/Home/DeleteSelected";
+        if (pendingAction === "deleteUnverified") form.action = "/Home/DeleteUnverified";
+
+        form.submit();
+    });
+
+    updateToolbar();
+</script>
+}

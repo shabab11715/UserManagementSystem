@@ -1,0 +1,87 @@
+:root {
+  --app-bg: linear-gradient(135deg,#abeef7,#ffffff);
+  --navbar-bg: linear-gradient(135deg, #26004c, #731acc, #26004c);
+  --login-wallpaper: linear-gradient(135deg, #0004ff, #a4eaff);
+}
+
+.app-bg {
+  background: var(--app-bg);
+  min-height: 100vh;
+}
+
+.app-navbar {
+  background: var(--navbar-bg);
+}
+
+.app-navbar .navbar-brand,
+.app-navbar .nav-link {
+  color: #fff !important;
+}
+
+.app-navbar .nav-link {
+  opacity: 0.92;
+}
+
+.app-navbar .nav-link:hover {
+  opacity: 1;
+}
+
+.surface-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+}
+
+.form-control, .form-select {
+  border-radius: 12px;
+}
+
+.btn {
+  border-radius: 12px;
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.table thead th {
+  font-weight: 600;
+  color: #111827;
+}
+
+.table tbody td {
+  vertical-align: middle;
+}
+
+.table > :not(caption) > * > * {
+  padding: 14px 16px;
+}
+
+.table tbody tr {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.login-wallpaper {
+  background-image: url("/images/login-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.9);
+}
+
+
+.toolbar-card {
+  background: hsla(0, 0%, 90%, 0.3);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 14px;
+}
