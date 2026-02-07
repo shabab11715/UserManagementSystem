@@ -42,7 +42,8 @@ namespace Task4.Controllers
             var totalCount = await query.CountAsync();
 
             var users = await query
-                .OrderByDescending(u => u.LastLoginAt)
+                .OrderBy(u => u.LastLoginAt == null)
+                .ThenByDescending(u => u.LastLoginAt)
                 .ThenByDescending(u => u.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
